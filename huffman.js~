@@ -1,0 +1,100 @@
+function frequency(str){
+  var freqs={}
+  for(var ch in str){
+    if(str[ch] in freqs)
+      freqs[str[ch]]=freqs[str[ch]]+1;
+    else
+      freqs[str[ch]]=1;
+    }
+  return freqs
+  }
+
+function sortfreq(freqs){
+	var list=[];
+	for(var letter in freqs){
+		list.push([freqs[letter],letter])
+	}
+	list.sort();
+	return list
+  }
+
+function buildTree(tuples) {
+	while(tuples.length > 1) {
+        	leastTwo = tuples.slice(0,2)
+        	theRest = tuples.slice(2)
+        	combFreq = leastTwo[0][0] + leastTwo[1][0]
+			neww = [[combFreq].concat([leastTwo])]
+        	tuples = theRest.concat(neww)
+            tuples.sort()
+            
+    }
+	return tuples
+  }
+
+function trimTree(tree){
+	var p = tree[1];
+	if(typeof p == 'string') {return p;}
+	else { return [trimTree(p[0]),trimTree(p[1])]; }
+  }
+
+var codes = {}
+function assignCodes(node,pat){
+	if(pat == undefined){
+		pat = '';
+	}
+	if(typeof(node) == 'string'){
+		codes[node] = pat
+	}
+	else{
+		assignCodes(node[0],pat+"0")
+		assignCodes(node[1],pat+"1")
+	}
+	return codes
+  }
+
+function encode(string){
+	var output = '';
+	for(var ch in string) { 
+      output += codes[string[ch]]
+    }
+	return output
+  }
+
+function decode(tree,str){
+	var output = ''
+	var p = tree
+	for(bit in str){
+		if(str[bit] == '0') { p = p[0]}
+		else { p = p[1]}
+		if(typeof (p) == 'string') {
+			output += p
+			p = tree
+		}
+	}
+	return output
+  }
+
+str='aaabccdeeeeeffg'
+
+freqs=frequency(str)
+//console.log('frequency' , freqs)
+
+sorts=sortfreq(freqs)
+//console.log('sorted frequency\n' , sorts)
+
+tree=buildTree(sorts)
+//console.log('buildtree' , tree)
+
+trim=trimTree(([15, [[6, [[3, 'a'], [3, [[1, 'g'], [2, 'c']]]]], [9, [[4, [[2, 'f'], [2, [[1, 'b'], [1, 'd']]]]], [5, 'e']]]]]));
+//console.log('trimtree', trim)
+
+codes=assignCodes(trim)
+//console.log('assigncodes\n', codes)
+
+compression=encode(str,codes)
+console.log('encoding Data', compression)
+
+
+extraction=decode(trim,compression)
+console.log('decoding Data', extraction)
+
